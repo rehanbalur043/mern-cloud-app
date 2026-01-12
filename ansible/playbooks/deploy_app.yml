@@ -1,0 +1,15 @@
+---
+- name: Deploy MERN app to Kubernetes
+  hosts: k8s
+  connection: local
+  tasks:
+    - name: Apply manifests
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ item }}"
+      loop:
+        - /mnt/d/Cloud Comp/mern-cloud-app/k8s/k8s-namespace.yaml
+        - /mnt/d/Cloud Comp/mern-cloud-app/k8s/k8s-postgres.yaml
+        - /mnt/d/Cloud Comp/mern-cloud-app/k8s/k8s-auth.yaml
+        - /mnt/d/Cloud Comp/mern-cloud-app/k8s/k8s-data.yaml
+        - /mnt/d/Cloud Comp/mern-cloud-app/k8s/k8s-frontend.yaml

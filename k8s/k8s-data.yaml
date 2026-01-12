@@ -1,0 +1,54 @@
+# k8s-data.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pern-data-service
+  namespace: product-inventory
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pern-data-service
+  template:
+    metadata:
+      labels:
+        app: pern-data-service
+    spec:
+      containers:
+        - name: data
+          image: mern-cloud-app-data-service:latest # change to your image
+          ports:
+            - containerPort: 5002
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: "5002"
+            - name: DB_HOST
+              value: pern-postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: pern_app
+            - name: DB_USER
+              value: postgres
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: AUTH_SERVICE_URL
+              value: http://pern-auth-service:5001/api
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pern-data-service
+  namespace: product-inventory
+spec:
+  selector:
+    app: pern-data-service
+  ports:
+    - port: 5002
+      targetPort: 5002
+  type: ClusterIP

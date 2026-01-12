@@ -1,0 +1,35 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["prometheus:9090"]
+
+  # Host metrics
+  - job_name: "node-exporter"
+    static_configs:
+      - targets: ["localhost:9100"]
+
+  # Docker / container metrics
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["localhost:8080"]
+
+  # Kubernetes API (cluster-level metrics) - works when kubelet exposes metrics to host
+  - job_name: "kubernetes-apiservers"
+    metrics_path: /metrics
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+    static_configs:
+      - targets: []
+    # You can later replace this with proper in-cluster Prometheus or kube-state-metrics when you deploy monitoring inside K8s.
+
+  # Microservices with /metrics (Docker or K8s)
+  - job_name: "microservices"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:5001", "host.docker.internal:5002"]
